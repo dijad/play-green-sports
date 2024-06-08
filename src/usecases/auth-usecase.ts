@@ -2,26 +2,32 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { insertUser } from "../usecases/auth/auth-repository";
+
 import { FirebaseError } from "firebase/app";
 import { CredentialsPayload } from "../adapters/routes/auth/auth-interfaces";
-import { auth } from "../adapters/frameworks/firebase";
+import { firebaseConnection } from "../adapters/frameworks/firebase";
 import { DefaultResponse } from "../adapters/interfaces/interfaces";
+import { handleError } from "../utils/utils";
 
 async function registerUser(
-  credentials: CredentialsPayload
+  credentials: CredentialsPayload,
+  rol: string
 ): Promise<DefaultResponse | undefined> {
   try {
     await createUserWithEmailAndPassword(
-      auth,
+      firebaseConnection.auth(),
       credentials.email,
       credentials.password
     );
+    await insertUser(credentials.email, rol);
+
     return {
       status: "Success",
       message: "User registered successfully",
     };
   } catch (error) {
-    handleError(error, "Something failed signing up");
+    return handleError(error);
   }
 }
 
@@ -30,7 +36,7 @@ async function loginWithEmailAndPassword(
 ): Promise<DefaultResponse | undefined> {
   try {
     const userCredential = await signInWithEmailAndPassword(
-      auth,
+      firebaseConnection.auth(),
       credentials.email,
       credentials.password
     );
@@ -46,15 +52,7 @@ async function loginWithEmailAndPassword(
       },
     };
   } catch (error) {
-    handleError(error, "Something failed logging");
-  }
-}
-
-function handleError(error: FirebaseError | unknown, message: string) {
-  if (error instanceof FirebaseError) {
-    console.error(`${message}: ${error.message}`);
-  } else {
-    console.error(`${message}: Unknown Error`, error);
+    return handleError(error);
   }
 }
 

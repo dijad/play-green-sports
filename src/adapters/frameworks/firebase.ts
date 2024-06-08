@@ -1,5 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
+import * as admin from "firebase-admin";
+
 
 function loadENV() {
   return {
@@ -13,7 +15,8 @@ function loadENV() {
 }
 
 firebase.initializeApp(loadENV());
+admin.initializeApp(loadENV());
 
-const auth = firebase.auth();
+const firebaseConnection = firebase;
 
-export { auth };
+export { firebaseConnection };

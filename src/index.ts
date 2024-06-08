@@ -1,28 +1,30 @@
-import { loadEnv } from '../env';
+import { loadEnv } from "../env";
 loadEnv();
-import * as Hapi from '@hapi/hapi';
-import routes from '../src/adapters/routes/auth/auth-routes';
-
+import * as Hapi from "@hapi/hapi";
+import * as HapiAuthJwt from "hapi-auth-jwt2";
+import routes from "../src/adapters/routes/auth/auth-routes";
 
 const init = async () => {
-    const server = Hapi.server({
-        port: process.env.PORT || 3000,
-        host: 'localhost'
-    });
+  const server = Hapi.server({
+    port: process.env.PORT || 3000,
+    host: "localhost",
+  });
 
-    server.route({
-        method: 'GET',
-        path: '/',
-        handler: () => 'Hello World!'
-    });
+  await server.register(HapiAuthJwt);
 
-    server.route(routes);
+  server.route({
+    method: "GET",
+    path: "/",
+    handler: () => "Hello World!",
+  });
 
-    await server.start();
-    console.log(`Server running at: ${server.info.uri}`);
-}
+  server.route(routes);
 
-init().catch(err => {
-    console.log(err);
-    process.exit(1);
+  await server.start();
+  console.log(`Server running at: ${server.info.uri}`);
+};
+
+init().catch((err) => {
+  console.log(err);
+  process.exit(1);
 });
