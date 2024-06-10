@@ -5,7 +5,7 @@ import {
   registerUser,
 } from "../../../usecases/auth-usecase";
 import { CONSTANTS } from "../../../utils/consts";
-import { isAdmin } from "../../../utils/auth-utils";
+import { checkRole } from "../../../utils/auth-utils";
 
 const routes: ServerRoute[] = [
   {
@@ -40,9 +40,7 @@ const routes: ServerRoute[] = [
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
         const idToken = request.headers.authorization?.split(" ")[1];
-
-        const isAdminFlag = await isAdmin(idToken);
-
+        const isAdminFlag = await checkRole(idToken, CONSTANTS.rols.admin);
         if (!isAdminFlag.status) {
           return h
             .response({ status: "Success", message: isAdminFlag.msg })
@@ -54,7 +52,30 @@ const routes: ServerRoute[] = [
           payload,
           CONSTANTS.rols.admin
         );
-        console.log(signUpResponse)
+        return h.response(signUpResponse).type("application/json");
+      } catch (error) {
+        return h.response({ error: "Something failed registering" }).code(500);
+      }
+    },
+  },
+  {
+    method: "POST",
+    path: "/register-user", //admin register user
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const idToken = request.headers.authorization?.split(" ")[1];
+        const isAdminFlag = await checkRole(idToken, CONSTANTS.rols.admin);
+        if (!isAdminFlag.status) {
+          return h
+            .response({ status: "Success", message: isAdminFlag.msg })
+            .code(403);
+        }
+
+        const payload = request.payload as CredentialsPayload;
+        const signUpResponse = await registerUser(
+          payload,
+          CONSTANTS.rols.user
+        );
         return h.response(signUpResponse).type("application/json");
       } catch (error) {
         return h.response({ error: "Something failed registering" }).code(500);

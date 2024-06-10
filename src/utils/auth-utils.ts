@@ -1,8 +1,8 @@
 import * as admin from "firebase-admin";
-import { CONSTANTS } from "./consts";
 import { checkUserRollUC } from "../usecases/users-usecases";
+import { PlaceBetPayload } from "../adapters/routes/bets/bets-interfaces";
 
-async function isAdmin(idToken: string) {
+async function checkRole(idToken: string, requiredRole: string, payload: any | null = null) {
   if (!idToken) {
     return {
       status: false,
@@ -10,14 +10,21 @@ async function isAdmin(idToken: string) {
     };
   }
 
-  const decodedToken = await admin.auth().verifyIdToken(idToken);
-  const email = decodedToken.firebase.identities.email;
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const email = decodedToken.firebase.identities.email;
+    if(payload){
+      payload.email = email[0];
+    }
+    const userRole = await checkUserRollUC(email);
 
-  const rol = await checkUserRollUC(email);
-
-  if (rol !== CONSTANTS.rols.admin) {
-    return { status: false, msg: "Unauthorized token" };
+    if (userRole === requiredRole) {
+      return { status: true, msg: "Allowed access" };
+    } else {
+      return { status: false, msg: "Unauthorized token" };
+    }
+  } catch (error) {
+    return { status: false, msg: "Error verifying token" };
   }
-  return { status: true, msg: "Allowed access" };
 }
-export { isAdmin };
+export { checkRole };

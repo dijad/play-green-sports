@@ -2,7 +2,9 @@ import { loadEnv } from "../env";
 loadEnv();
 import * as Hapi from "@hapi/hapi";
 import * as HapiAuthJwt from "hapi-auth-jwt2";
-import routes from "../src/adapters/routes/auth/auth-routes";
+import routesAuth from "../src/adapters/routes/auth/auth-routes";
+import routesBets from "../src/adapters/routes/bets/bets-routes";
+import routesTransactions from "../src/adapters/routes/transactions/transactions-routes";
 
 const init = async () => {
   const server = Hapi.server({
@@ -18,7 +20,9 @@ const init = async () => {
     handler: () => "Hello World!",
   });
 
-  server.route(routes);
+  server.route(routesAuth);
+  server.route(routesBets);
+  server.route(routesTransactions);
 
   await server.start();
   console.log(`Server running at: ${server.info.uri}`);

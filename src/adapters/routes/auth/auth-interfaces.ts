@@ -1,6 +1,7 @@
 interface CredentialsPayload {
   email: string;
   password: string;
+  rol: string;
 }
 
 interface AuthResponseLogin {

@@ -3,8 +3,6 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { insertUser } from "../usecases/auth/auth-repository";
-
-import { FirebaseError } from "firebase/app";
 import { CredentialsPayload } from "../adapters/routes/auth/auth-interfaces";
 import { firebaseConnection } from "../adapters/frameworks/firebase";
 import { DefaultResponse } from "../adapters/interfaces/interfaces";
