@@ -1,4 +1,5 @@
 import db from "../../adapters/frameworks/db/mysql/mysql";
+import { TransactionGet } from "../../adapters/routes/transactions/transactions-interface";
 async function insertTransaction(payload: any) {
   try {
     await db("transactions").insert(payload);
@@ -19,10 +20,28 @@ async function getTransactionsByUser(userId: number, category: string | null) {
     }
     const result = await query;
 
-    return result.length > 0 ? result : 'Transaction not found';
+    return result.length > 0 ? result : [];
+  } catch (err) {
+    return { status: "Fail", message: err };
+  }
+}
+async function getTransactions(payload: TransactionGet) {
+  try {
+    const query = db("transactions").select("*").whereNull("deleted_at");
+
+    if (payload.category) {
+      query.where("category", payload.category);
+    }
+
+    if (payload.user_id) {
+      query.where("user_id", payload.user_id);
+    }
+    const result = await query;
+
+    return result.length > 0 ? result : "Transaction not found";
   } catch (err) {
     return { status: "Fail", message: err };
   }
 }
 
-export { insertTransaction, getTransactionsByUser };
+export { insertTransaction, getTransactionsByUser, getTransactions };

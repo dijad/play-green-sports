@@ -6,6 +6,7 @@ import routesAuth from "../src/adapters/routes/auth/auth-routes";
 import routesBets from "../src/adapters/routes/bets/bets-routes";
 import routesTransactions from "../src/adapters/routes/transactions/transactions-routes";
 import routesProfile from "./adapters/routes/profile/profile-routes";
+import routesUsers from "./adapters/routes/users/users-routes";
 
 const init = async () => {
   const server = Hapi.server({
@@ -25,6 +26,7 @@ const init = async () => {
   server.route(routesBets);
   server.route(routesTransactions);
   server.route(routesProfile);
+  server.route(routesUsers);
 
   await server.start();
   console.log(`Server running at: ${server.info.uri}`);

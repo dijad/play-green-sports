@@ -9,4 +9,9 @@ interface TransactionInsert {
   user_id: number;
 }
 
-export { TransactionPayload, TransactionInsert };
+interface TransactionGet {
+  user_id: number | null;
+  category: string | null
+}
+
+export { TransactionPayload, TransactionInsert, TransactionGet };

@@ -1,9 +1,11 @@
 import { UpdateProfilePayload } from "../adapters/routes/profile/profile-interfaces";
+import { UserUpdate } from "../adapters/routes/users/users-interfaces";
 import { getTransactionsByUserUC } from "./transactions-usecases";
 import {
   checkUserRoll,
   getUserIdByEmail,
   updateUser,
+  updateUserState,
 } from "./users/users-repository";
 
 async function checkUserRollUC(email: string) {
@@ -43,7 +45,6 @@ async function getBalance(payload: any) {
           balance -= transaction.amount;
           break;
         case "WINNING":
-          //TODO
           balance += transaction.amount;
           break;
       }
@@ -67,5 +68,22 @@ async function getTransactions(payload: any) {
     return { status: "Fail", message: error };
   }
 }
+async function updateUserStateUC(payload: UserUpdate): Promise<any> {
+  try {
+    const update = await updateUserState(payload);
+    return {
+      status: "Success",
+      message: update,
+    };
+  } catch (error) {
+    return { status: "Fail", message: error };
+  }
+}
 
-export { checkUserRollUC, updateProfile, getBalance, getTransactions };
+export {
+  checkUserRollUC,
+  updateProfile,
+  getBalance,
+  getTransactions,
+  updateUserStateUC,
+};
