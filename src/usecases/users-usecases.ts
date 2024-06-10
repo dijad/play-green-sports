@@ -1,4 +1,10 @@
-import { checkUserRoll } from "./users/users-repository";
+import { UpdateProfilePayload } from "../adapters/routes/profile/profile-interfaces";
+import { getTransactionsByUserUC } from "./transactions-usecases";
+import {
+  checkUserRoll,
+  getUserIdByEmail,
+  updateUser,
+} from "./users/users-repository";
 
 async function checkUserRollUC(email: string) {
   try {
@@ -9,4 +15,57 @@ async function checkUserRollUC(email: string) {
   }
 }
 
-export { checkUserRollUC };
+async function updateProfile(payload: UpdateProfilePayload) {
+  try {
+    await updateUser(payload);
+    return { status: "Success", message: "Update sucessfully" };
+  } catch (error) {
+    return { status: "Fail", message: error };
+  }
+}
+
+async function getBalance(payload: any) {
+  let balance = 0;
+  try {
+    const userId = payload.email
+      ? await getUserIdByEmail(payload.email)
+      : undefined;
+    const transactions = await getTransactionsByUserUC(userId, null);
+    for (const transaction of transactions) {
+      switch (transaction.category) {
+        case "DEPOSIT":
+          balance += transaction.amount;
+          break;
+        case "WITHDRAW":
+          balance -= transaction.amount;
+          break;
+        case "BET":
+          balance -= transaction.amount;
+          break;
+        case "WINNING":
+          //TODO
+          balance += transaction.amount;
+          break;
+      }
+    }
+    return { status: "Success", message: { balance: `$${balance}` } };
+  } catch (error) {
+    return { status: "Fail", message: error };
+  }
+}
+async function getTransactions(payload: any) {
+  try {
+    const userId = payload.email
+      ? await getUserIdByEmail(payload.email)
+      : undefined;
+    const transactions = await getTransactionsByUserUC(userId, payload.type);
+    return {
+      status: "Success",
+      message: { transaction_number: transactions.length, transactions },
+    };
+  } catch (error) {
+    return { status: "Fail", message: error };
+  }
+}
+
+export { checkUserRollUC, updateProfile, getBalance, getTransactions };

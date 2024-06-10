@@ -6,12 +6,10 @@ import { getUserIdByEmail } from "./users/users-repository";
 async function placeBet(
   payload: PlaceBetPayload
 ): Promise<DefaultResponse | undefined> {
-  let userId;
-
   try {
-    if (payload.email) {
-      userId = await getUserIdByEmail(payload.email);
-    }
+    const userId = payload.email
+      ? await getUserIdByEmail(payload.email)
+      : undefined;
 
     await insertUserBets(payload, userId);
 

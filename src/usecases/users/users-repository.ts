@@ -1,4 +1,5 @@
 import db from "../../adapters/frameworks/db/mysql/mysql";
+import { UpdateProfilePayload } from "../../adapters/routes/profile/profile-interfaces";
 
 async function checkUserRoll(email: string) {
   try {
@@ -32,4 +33,19 @@ async function getUserIdByEmail(email: string) {
   }
 }
 
-export { checkUserRoll, getUserIdByEmail };
+async function updateUser(payload: UpdateProfilePayload) {
+  try {
+    const query = await db("users")
+      .where("email", db.raw(`'${payload.email}'`))
+      .update({ username: payload.username });
+    if (query) {
+      return query.id;
+    } else {
+      return null;
+    }
+  } catch (err) {
+    return { status: "Fail", message: err };
+  }
+}
+
+export { checkUserRoll, getUserIdByEmail, updateUser };

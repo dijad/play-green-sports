@@ -1,20 +1,18 @@
 import { DefaultResponse } from "../adapters/interfaces/interfaces";
+import { TransactionPayload } from "../adapters/routes/transactions/transactions-interface";
 import {
-  TransactionInsert,
-  TransactionPayload,
-} from "../adapters/routes/transactions/transactions-interface";
-import { insertTransaction } from "./transactions/transactions-repository";
+  insertTransaction,
+  getTransactionsByUser,
+} from "./transactions/transactions-repository";
 import { getUserIdByEmail } from "./users/users-repository";
 
 async function doTransaction(
   payload: TransactionPayload
 ): Promise<DefaultResponse | undefined> {
-  let userId;
-
   try {
-    if (payload.email) {
-      userId = await getUserIdByEmail(payload.email);
-    }
+    const userId = payload.email
+      ? await getUserIdByEmail(payload.email)
+      : undefined;
     const dataInsert = normalizeDataToInsert(payload, userId);
     await insertTransaction(dataInsert);
 
@@ -44,4 +42,13 @@ function normalizeDataToInsert(payload: TransactionPayload, userId: number) {
   }
 }
 
-export { doTransaction };
+async function getTransactionsByUserUC(userId: number, category: string | null): Promise<any> {
+  try {
+    const transactions = await getTransactionsByUser(userId, category);
+    return transactions;
+  } catch (error) {
+    return { status: "Fail", message: error };
+  }
+}
+
+export { doTransaction, getTransactionsByUserUC };
